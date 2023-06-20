@@ -1,0 +1,44 @@
+{% extends "layout.html" %} {% block style %}
+
+<title>Home</title>
+
+{% endblock style %} {% block content %}
+<h1>Upload Files</h1>
+
+{% if message %}
+<div class="alert alert-danger mx-auto my-5" role="alert" style="width: 50%">
+  {{ message }}
+</div>
+{% endif %}
+
+<div class="col-3 mx-auto">
+  <form method="post" enctype="multipart/form-data">
+    <label class="form-label-file">JSON</label>
+    <br />
+    <input class="btn btn-light" type="file" name="json" id="json" />
+    <br />
+    <label class="form-label-file">BPMN</label>
+    <br />
+    <input class="btn btn-light" type="file" name="bpmn" id="bpmn" />
+    <br />
+    <input class="btn btn-outline-dark" type="submit" value="Upload files" />
+  </form>
+</div>
+
+{% if filename %}
+<p>
+  Download uploaded File 1:
+  <a href="{{ url_for('download_file', name=filename) }}">Download</a>
+</p>
+{% endif %} {% if filename2 %}
+<p>
+  Download uploaded File 2:
+  <a href="{{ url_for('download_file', name=filename2) }}">Download</a>
+</p>
+{% endif %} 
+
+{% if filepathjson %}
+  <p>{{ filepathjson }}</p>
+{% endif %}
+
+{% endblock content %}
