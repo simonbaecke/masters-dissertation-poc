@@ -37,13 +37,9 @@
 
 {% endblock style %} {% block content %}
 
-<h1>BPMN representation</h1>
+{% if filename_json_checked %}
 
-{% if file_path_bpmn %}
-  <p>{{ file_path_bpmn }}</p>
-
-
-<div id="diagram-container">
+<div id="diagram-container" class="my-4">
   <div id="diagram"></div>
 </div>
 
@@ -69,17 +65,24 @@
   }
 
   // load + show diagram
-  $.get("{{ url_for('static', filename=file_path_bpmn) }}", showDiagram);
+  $.get("{{ url_for('static', filename=filename_bpmn_checked) }}", showDiagram);
 </script>
+
+
+<p>
+  Download updated json database:
+  <a href="{{ url_for('download_file', name=filename_json_checked) }}">Download</a>
+</p>
+<p>
+  Download uploaded File 2:
+  <a href="{{ url_for('download_file', name=filename_bpmn_checked) }}">Download</a>
+</p>
+
 
 
 {% else %}
 <p>No BPMN file uploaded</p>
 
-{% endif %}
-
-{%if edit %}
-  <p>{{ edit }}</p>
 {% endif %}
 
 {% endblock content %}
