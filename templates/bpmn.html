@@ -1,88 +1,92 @@
-{% extends "layout.html" %} {% block style %}
-
+{% extends "layout.html" %}
+{% block style %}
 <title>Results</title>
-<style>
-  body,
-  html {
-    height: 100%;
-    margin: 1, 5%;
-  }
+{% endblock style %}
+{% block content %}
+<div class="container-fluid toppadding">
+  
+  {% if filename_json_checked %}
+  <div style="text-align: center">
+    <a style="width: 15vw" class="btn btn-dark" role="button"
+      href="{{ url_for('download_file', name=filename_bpmn_checked) }}">Download
+      updated diagram </a>
+    <a style="width: 15vw" class="btn btn-dark {% if not enteredadd %} disabled" aria-disabled="true {% endif %}"
+      role="button" download href="{{ url_for('download_file', name=filename_json_checked) }}">Download updated
+      database</a>
+  </div>
 
-  #diagram-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  {% if endparameter_data %}
+  <div style="text-align: center">
+    <form method="post" action="/bpmn" id="addparameterfill">
+      <div class="row">
+        {% for item in endparameters %}
+        <div class="form-group col-md-4">
+          <label for="{{ item.id }}">{{ item.name }}:</label>
+          <br />
+          <input class="form-control" type="text" name="{{ item.id }}" id="{{ item.id }}" />
+        </div>
+        {% endfor %}
+      </div>
+    </form>
+    <button form="addparameterfill" class="btn btn-dark my-2" type="submit">Send additional parameters</button>
+    {% endif %}
 
-  #diagram {
-    border: 1px solid black;
-    width: 96vw; /* 80% of the viewport width */
-    height: 60vh; /* 50% of the viewport height */
-  }
-</style>
+    <div id="diagram-container" class="my-4">
+      <div id="diagram"></div>
+    </div>
 
-<!-- required modeler styles -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/bpmn-js@13.2.0/dist/assets/diagram-js.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/bpmn-js@13.2.0/dist/assets/bpmn-js.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/bpmn-js@13.2.0/dist/assets/bpmn-font/css/bpmn.css"
-/>
+    <!-- modeler distro -->
+    <script src="https://unpkg.com/bpmn-js@13.2.0/dist/bpmn-modeler.development.js"></script>
 
-{% endblock style %} {% block content %}
+    <!-- jquery (required for example only) -->
+    <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
 
-{% if filename_json_checked %}
+    <!-- app -->
+    <script>
+      var viewer = new BpmnJS({
+        container: "#diagram",
+      });
 
-<div id="diagram-container" class="my-4">
-  <div id="diagram"></div>
-</div>
+      async function showDiagram(diagramXML) {
+        await viewer.importXML(diagramXML);
 
-<!-- modeler distro -->
-<script src="https://unpkg.com/bpmn-js@13.2.0/dist/bpmn-modeler.development.js"></script>
+        var overlays = viewer.get("overlays"),
+          canvas = viewer.get("canvas"),
+          elementRegistry = viewer.get("elementRegistry"),
+          modeling = viewer.get("modeling");
+      }
 
-<!-- jquery (required for example only) -->
-<script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+      // load + show diagram
+      $.get("{{ url_for('static', filename=filename_bpmn_checked) }}", showDiagram);
+    </script>
 
-<!-- app -->
-<script>
-  var viewer = new BpmnJS({
-    container: "#diagram",
-  });
+    {% for datatype,name in zipt %}
+    {% if datatype %}
+    <h4>{{ name }}</h4>
+    <table class="table table-hover table-borderless">
+      <thead>
+        <tr>
+          <th style="width: 12%" scope="col">ID</th>
+          <th style="width: 62%" scope="col">Description</th>
+          <th style="width: 14%" scope="col">Value</th>
+          <th style="width: 120%" scope="col">Unit of measurement</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in datatype %}
+        <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.description }}</td>
+          <td>{{ item.value }}</td>
+          <td>{{ item['unit of measurement'] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    {% endfor %}
 
-  async function showDiagram(diagramXML) {
-    await viewer.importXML(diagramXML);
+    {% endif %}
+  </div>
 
-    var overlays = viewer.get("overlays"),
-      canvas = viewer.get("canvas"),
-      elementRegistry = viewer.get("elementRegistry"),
-      modeling = viewer.get("modeling");
-  }
-
-  // load + show diagram
-  $.get("{{ url_for('static', filename=filename_bpmn_checked) }}", showDiagram);
-</script>
-
-
-<p>
-  Download updated json database:
-  <a href="{{ url_for('download_file', name=filename_json_checked) }}">Download</a>
-</p>
-<p>
-  Download uploaded File 2:
-  <a href="{{ url_for('download_file', name=filename_bpmn_checked) }}">Download</a>
-</p>
-
-
-
-{% else %}
-<p>No BPMN file uploaded</p>
-
-{% endif %}
-
-{% endblock content %}
+  {% endblock content %}
