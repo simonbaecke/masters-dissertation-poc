@@ -12,8 +12,8 @@ python app.py
  ```
 ## Use
 You can upload a BPMN diagram and a corresponding JSON database or you can select the example files at the 'Example Rainwater Regulation' page.
-
-https://github.com/simonbaecke/GMasterproef/blob/main/example.png
+![alt text](https://github.com/simonbaecke/GMasterproef/blob/main/home.png)
+![alt text](https://github.com/simonbaecke/GMasterproef/blob/main/example.png)
 
 ## Example
 The microservices used in the example of the rainwater regulation can be found at https://github.com/simonbaecke/masters-dissertation/blob/main/microservices.
