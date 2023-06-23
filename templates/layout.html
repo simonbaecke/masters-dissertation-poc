@@ -8,7 +8,7 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
   <style>
     .toppadding {
       padding-top: 1.5cm;
@@ -24,7 +24,12 @@
       border: 2.5px solid black;
       border-radius: 10px;
       width: 100vw;
-      height: 60vh;
+      height: 70vh;
+    }
+
+    .justifytext {
+      text-align: justify;
+      text-justify: inter-word;
     }
   </style>
 
@@ -32,39 +37,111 @@
   <link rel="stylesheet" href="https://unpkg.com/bpmn-js@13.2.0/dist/assets/diagram-js.css" />
   <link rel="stylesheet" href="https://unpkg.com/bpmn-js@13.2.0/dist/assets/bpmn-js.css" />
   <link rel="stylesheet" href="https://unpkg.com/bpmn-js@13.2.0/dist/assets/bpmn-font/css/bpmn.css" />
-  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" />
 
   {% block style %}{% endblock %}
 </head>
 
 <body>
-    <div class="mb-2">
-      <nav class="navbar fixed-top bg-body-tertiary navbar-expand-lg navbar-dark bg-dark" data-bs-theme="dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="/">Proof of Concept</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('upload_file') }}">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('input') }}">Parameters</a>
-              </li>
-              {% if done %}
-              <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('bpmn') }}">Results</a>
-              </li>
-              {% endif %}
-            </ul>
-          </div>
+  <div class="mb-2">
+    <nav class="navbar fixed-top bg-body-tertiary navbar-expand-lg navbar-dark" style="background-color: #1a1e22"
+      data-bs-theme="dark">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="" data-bs-toggle="modal" data-bs-target="#exampleModal">Proof of Concept</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('upload_file') }}">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('example') }}">Example Rainwater Regulation</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('input') }}">Parameters</a>
+            </li>
+            {% if done %}
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('bpmn') }}">Results</a>
+            </li>
+            {% endif %}
+          </ul>
         </div>
-      </nav>
+      </div>
+    </nav>
+  </div>
+
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Information</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="justifytext">
+            This is a proof of concept application from the master's
+            dissertation "Data-based compliance checking against building
+            requirements" at Ghent University. It is developed to check
+            building data from multiple sources against building requirements
+            that are both human and machine-readable. These rules are
+            represented in a BPMN XML file which has a visual representation.
+            In addition to checking compliance, it makes decision of which
+            rules have to be applied based on the provided data. It can
+            connect to external services to retrieve data or perform
+            calculations with the help of microservices.
+          </p>
+          <b>Home</b>
+          <p class="justifytext">
+            Any BPMN diagram and JSON database can be uploaded at this page.
+            All BPMN diagrams can be visualized, but to be able to check
+            compliance of the data in the JSON file it has to comply to the
+            modelling guidelines set in the dissertation.
+          </p>
+          <b>Example Rainwater Regulation</b>
+          <p class="justifytext">
+            An illustrative example to materialize the concepts during the
+            dissertation is the rainwater regulation of the Flemish Integrated
+            Environmental Permit. This page contains the two parts of the BPMN
+            translations of this ruleset. The database that corresponds with
+            this regulation is automatically attached but is empty so
+            parameter values have to be entered at the parameter page. At the
+            parcel scale, several microservices are attached to the diagram.
+            These microservices are developed to assist the regulation and are
+            not available online but can can be found at
+            https://github.com/simonbaecke/masters-dissertation/tree/main/microservices.
+            They can be downloaded and run locally. In order to communicate
+            with the diagram, their local URI needs to be specified in the
+            BPMN diagram in an external BPMN modeler. The example files itself
+            can be found in the static folder.
+          </p>
+          <b>Parameters</b>
+          <br />
+          <p class="justifytext">
+            At this page the parameter names, ids and values are displayed.
+            They are classified based on their original data sources. To
+            enhance flexibility, empty values can be filled in or existing
+            values can be edited. It is also possible to add values with a
+            JSON file that has an array structure with "id" : value as
+            content.
+          </p>
+          <b>Results</b>
+          <p class="justifytext">
+            Lastly, the results page is only available when the diagram is
+            processed, whether it was succesfull or an error occurred. The adjusted BPMN diagram is displayed and the followed path can
+            be observed due to the unused elements being faded out. Additionally ,the generated parameters of the
+            regulation are displayed together with the retrieved parameters from
+            the datasources.
+          </p>
+        </div>
+      </div>
     </div>
+  </div>
 
   {% block content %}{% endblock %}
 

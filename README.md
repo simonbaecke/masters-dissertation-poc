@@ -10,13 +10,15 @@ To run the tool, simply download the zip folder and extract the content or clone
 ```
 python app.py
  ```
+
+ To make use of the microservices in the example of the rainwater regulation, visit https://github.com/simonbaecke/masters-dissertation/blob/main/microservices.
 ## Use
-You can upload a BPMN diagram and a corresponding JSON database or you can select the example files at the 'Example Rainwater Regulation' page.
+You can upload a BPMN diagram and a corresponding JSON database or you can select the example files at the Example Rainwater Regulation page.
+
 ![alt text](https://github.com/simonbaecke/GMasterproef/blob/main/home.png)
 ![alt text](https://github.com/simonbaecke/GMasterproef/blob/main/example.png)
 
-## Example
-The microservices used in the example of the rainwater regulation can be found at https://github.com/simonbaecke/masters-dissertation/blob/main/microservices.
+The parameters of the database can be viewed at the parameter page. They can be edited or filled in manually or with another JSON file that has an array structure with "id" : value as content. After the checking procedure, the checked diagram and its parameters can be seen at the results page. In the case that something goes wrong, a message will appear giving more information to the user. For instance when parameters are not valid or missing, the process is stopped and the user will be asked to fill in the correct information.
 
 ## Contact
 Feel free to reach out to me at simon.baecke@gmail.com if you have any questions or for a more detailed introduction to the tool.

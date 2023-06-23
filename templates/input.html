@@ -4,20 +4,27 @@
 {% endblock style %} {% block content %}
 
 <div class="container-fluid toppadding">
+  {% if negative_message %}
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ negative_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+  
   {% if not data %}
   <div mt-3>
     <p>No files uploaded</p>
     <a class="btn btn-dark" role="button" href="{{url_for('upload_file')}}">Upload files here</a>
   </div>
   {% else %}
-  <form method="post" action="/input" id="parameterfill">
+  <form method="post" id="parameterfill">
     {% for datatype,name in zipt %}
     {% if datatype %}
-    <h4>{{ name }}</h4>
+    <h5>{{ name }}</h5>
     <div class="row">
       {% for item in datatype %}
       <div class="form-group col-md-4">
-        <label for="{{ item.id }}">{{ item.name }}:</label>
+        <label for="{{ item.id }}">{{ item.name }} ({{ item.id}}):</label>
         <br />
         <input class="form-control" type="text" name="{{ item.id }}" id="{{ item.id }}" {% if item.value !=None %}
           value="{{ item.value }}" {% endif %} />
@@ -27,7 +34,14 @@
     {% endif %}
     {% endfor %}
   </form>
-  <button form="parameterfill" class="btn btn-dark my-2" type="submit">Submit Values</button>
-  {% endif %}
+
+<form method="post" enctype="multipart/form-data" id="addjson">
+  <button style="width: 7.5vw" form="parameterfill" class="btn btn-dark mr-2" type="submit">Submit Values</button>
+  <button style="width: 7.5vw" class="btn btn-dark mr-2 my-2" type="submit">Submit File</button>
+  <input class="btn btn-light mb-2" type="file" name="addjson" id="addjson" />
+</form>
+
+
+{% endif %}
 </div>
 {% endblock content %}

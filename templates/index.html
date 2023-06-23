@@ -5,12 +5,12 @@
 
 <div class="container-fluid toppadding">
   {% if negative_message %}
-  <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
     {{ negative_message }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
   {% endif %} {% if positive_message %}
-  <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
     {{ positive_message }}
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
   </div>
@@ -19,25 +19,20 @@
   <div style="text-align: center">
     <form method="post" enctype="multipart/form-data" id="fileupload">
       <label class="form-label-file mb-3">BPMN diagram:</label>
-      <br />
       <input class="btn btn-light mb-3" type="file" name="bpmn" id="bpmn" />
       <br />
       <label class="form-label-file mb-3">JSON database:</label>
-      <br />
       <input class="btn btn-light mb-3" type="file" name="json" id="json" />
     </form>
-    {% if filenamebpmn %}
     <form method="post" id="performcheck">
       <input type="hidden" name="processbutton" value="true">
     </form>
-    {% endif %}
-    <button style="width: 10vw" form="fileupload" class="btn btn-dark my-2" type="submit">Upload files</button>
-    <button style="width: 10vw" form="performcheck" type="submit" class="btn btn-dark my-2" {% if not filenamebpmn %} disabled {% endif %}>Check compliance</button>
+    <button style="width: 10vw" form="fileupload" class="btn btn-dark my-2 mr-2" type="submit">Upload files</button>
+    <button style="width: 10vw" form="performcheck" type="submit" class="btn btn-dark my-2 mr-2" {% if not filenamebpmn %} disabled {% endif %}>Check compliance</button>
     <a style="width: 10vw" class="btn btn-dark {% if not done %} disabled" aria-disabled="true {% endif %}" role="button" href="/bpmn">Check results</a>
   </div>
 
-
-  {% if filenamebpmn %}
+  {% if filenamebpmn and not example %}
 
   <div id="diagram-container">
     <div id="diagram"></div>

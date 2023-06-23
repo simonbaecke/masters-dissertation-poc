@@ -7,8 +7,9 @@ import html
 import math
 import requests
 
-UPLOAD_FOLDER = r'C:\Users\simon_w3\OneDrive - UGent\School\Ugent\2de ma ing.-arch\Masterproef\GMasterproef\Final\Flask_webserver\static'
 app = Flask(__name__)
+absolute_path = os.path.dirname(__file__)
+UPLOAD_FOLDER = absolute_path + "\static"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'dd793de789f6df5210f233ce4a83f92d'
 
@@ -21,7 +22,7 @@ def process_json(file_path):
         data = json.load(f)
     return data
 
-def reprocess_json(editeddata,data,file_path):
+def reprocess_json(editeddata, data, file_path):
     for id,value in editeddata.items():
             for parameters in data:
                 if parameters["id"] == id:
@@ -89,9 +90,7 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
                     if next.name == "receiveTask":
                         dataobject = data.find('dataObjectReference',attrs = {'id' : next.dataInputAssociation.sourceRef.string})
                         dataobjectid = dataobject["name"]
-                        #colors
-                        shapecolorid.append(dataobject["id"])
-                        linecolorid.append(next.dataInputAssociation["id"])
+                        print(dataobjectid)
 
                         for call in allcallactivities:
                             if call.find('targetRef',string=next.dataInputAssociation.sourceRef.string):
@@ -106,15 +105,13 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
                             parameterms = data.find(attrs= {'id' : ms.dataInputAssociation.sourceRef.string})
                             parameteridms = parameterms["name"]
                             parametermsvalues = eval(parameteridms,global_dict,local_dict)
-                            try:             
-                                response = requests.post(msurl,data=json.dumps(parametermsvalues))
-                                if response.status_code == 200:
-                                    msvalue = response.json()
-                                    local_dict[dataobjectid] = msvalue
-                                    database[int(dataobjectid[1:])-1]['value']= local_dict[dataobjectid]
-                            
-                            except:
-                                negative_message = f'cannot connect to microservice: {msurl}'
+                            response = requests.post(msurl,data=json.dumps(parametermsvalues))
+                            if response.status_code == 200:
+                                msvalue = response.json()
+                                local_dict[dataobjectid] = msvalue
+                                database[int(dataobjectid[1:])-1]['value']= local_dict[dataobjectid]
+                            else:
+                                negative_message = f'Cannot connect to microservice: {msurl}'
                                 errorloop = False
                                 break
                             
@@ -124,17 +121,22 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
                             shapecolorid.append(parameterms["id"])
                             linecolorid.append(ms.dataInputAssociation['id'])
                             linecolorid.append(ms.dataOutputAssociation['id'])
+                            shapecolorid.append(dataobject["id"])
+                            linecolorid.append(next.dataInputAssociation["id"])
         
                             ms = None                     
 
                         else:
                             databasevalue = database[int(dataobjectid[1:])-1]['value']
-                            if databasevalue is not None:
+                            if databasevalue or databasevalue == 0:
                                 try:
                                     validation = database[int(dataobjectid[1:])-1]['validation']
                                     if eval(str(databasevalue) + validation):
                                         local_dict[dataobjectid] = databasevalue
                                         usedparameters.append(dataobjectid)
+                                        #colors
+                                        shapecolorid.append(dataobject["id"])
+                                        linecolorid.append(next.dataInputAssociation["id"])
                                     else:
                                         negative_message = f'Parameter {dataobjectid}({databasevalue}) is not valid: {validation}'
                                         errorloop = False
@@ -228,6 +230,10 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
         positive_message = "BPMN processed succesfully"
     return usedparameters, endparameters, positive_message, negative_message
 
+
+
+
+
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
@@ -236,23 +242,21 @@ def upload_file():
             session['done'] = True
             filepathjson = session.get('file_path_json')
             filepathbpmn = session.get('file_path_bpmn')
-            filenamebpmn = session.get('filename_bpmn')
             session['file_path_bpmn_checked'] = filepathbpmn[:-5]+'checked.bpmn'
             session['file_path_json_checked']= filepathjson[:-5]+'checked.json'
             usedparameters, endparameters, positive_message, negative_message = bpmnprocessor(filepathbpmn,filepathjson)
             session['usedparameters'] = usedparameters
             if endparameters:
                 session['endparameters'] = endparameters
-            return render_template('index.html',filenamebpmn = filenamebpmn, positive_message=positive_message, negative_message=negative_message, done=session.get('done'))
+            return render_template('index.html',filenamebpmn = session.get('filename_bpmn'), positive_message=positive_message, negative_message=negative_message, done=session.get('done'),example=session.get('example'))
         
         else:
             jsondatabase = request.files.get('json')
             bpmndiagram = request.files.get('bpmn')
+            session['example']=None
             
             if allowed_file(jsondatabase.filename,"json") is False or allowed_file(bpmndiagram.filename,"bpmn") is False:
-                session['filename_bpmn'] = None
-                session['file_path_json'] = None
-                return render_template('index.html', negative_message='File type not supported')
+                return render_template('index.html', negative_message='File type not supported',example=session.get('example'))
             
             if jsondatabase and bpmndiagram and allowed_file(jsondatabase.filename,"json") and allowed_file(bpmndiagram.filename,"bpmn"):
                 filenamedatabase = secure_filename(jsondatabase.filename)
@@ -265,11 +269,10 @@ def upload_file():
                 bpmndiagram.save(file_path_bpmn)
                 session['file_path_bpmn'] = file_path_bpmn
                 session['filename_bpmn'] = filenamebpmn
-                return render_template('index.html', positive_message='Files uploaded successfully',filenamebpmn=session.get('filename_bpmn'), done=session.get('done'))
-    return render_template('index.html', done=session.get('done'),filenamebpmn=session.get('filename_bpmn'))
+                return render_template('index.html', positive_message='Files uploaded successfully',filenamebpmn=session.get('filename_bpmn'), done=session.get('done'),example=session.get('example'))
+    return render_template('index.html', done=session.get('done'),filenamebpmn=session.get('filename_bpmn'),example=session.get('example'))
 
-
-@app.route('/input', methods=['GET','POST'])
+@app.route('/parameters', methods=['GET','POST'])
 def input():
     file_path_json = session.get('file_path_json')
 
@@ -285,11 +288,24 @@ def input():
     zipt = zip([bim_data,gis_data,applicant_data],names)
 
     if request.method == 'POST':
-        editeddata = request.form
-        reprocess_json(editeddata,data, file_path_json)
+        if 'addjson' in request.files:
+            print('hallo')
+            addjson = request.files.get('addjson')
+            if not allowed_file(addjson.filename,"json"):
+                negative_message="File type not supported"
+                return render_template('input.html',filepathjson=file_path_json,done=session.get('done'), data=data, zipt=zipt, negative_message=negative_message)
+            else:
+                filenameaddjson = secure_filename(addjson.filename)
+                file_path_addjson = os.path.join(app.config['UPLOAD_FOLDER'], filenameaddjson)
+                addjson.save(file_path_addjson)
+                editeddata = process_json(file_path_addjson)
+                reprocess_json(editeddata,data,file_path_json)
+        else:
+            editeddata = request.form
+            reprocess_json(editeddata,data,file_path_json)
+        return render_template('input.html',filepathjson=file_path_json,done=session.get('done'), data=data, zipt=zipt)
 
     return render_template('input.html',filepathjson=file_path_json,done=session.get('done'), data=data, zipt=zipt)
-
 
 @app.route('/bpmn', methods=['GET','POST'])
 def bpmn():
@@ -320,6 +336,34 @@ def bpmn():
 
     return render_template('bpmn.html',filename_bpmn_checked = filename_bpmn_checked, filename_json_checked = filename_json_checked,done=session.get('done'), zipt=zipt, endparameters=endparameter_data, enteredadd = session.get('enteredadd'))
 
+@app.route('/example', methods=['GET','POST'])
+def example():
+    if request.method == 'POST':
+        if request.form.get('building') == "true":
+            session['filename_bpmn'] = "example rainwater regulation building.bpmn"
+            session['file_path_bpmn'] = absolute_path + '/static/example rainwater regulation building.bpmn'
+            session['example']="building"
+        elif request.form.get('parcel') == "true":
+            session['filename_bpmn'] = "example rainwater regulation parcel.bpmn"
+            session['file_path_bpmn'] = absolute_path + '/static/example rainwater regulation parcel.bpmn'
+            session['example']="parcel"
+        elif request.form.get('processbutton') == "true":
+            session['done'] = True
+            filepathjson = session.get('file_path_json')
+            filepathbpmn = session.get('file_path_bpmn')
+            session['file_path_bpmn_checked'] = filepathbpmn[:-5]+'checked.bpmn'
+            session['file_path_json_checked']= filepathjson[:-5]+'checked.json'
+            usedparameters, endparameters, positive_message, negative_message = bpmnprocessor(filepathbpmn,filepathjson)
+            session['usedparameters'] = usedparameters
+            if endparameters:
+                session['endparameters'] = endparameters
+            return render_template('example.html',filenamebpmn = session.get('filename_bpmn'), positive_message=positive_message, negative_message=negative_message, done=session.get('done'), example = session.get('example'))
+
+        session['file_path_json'] = absolute_path + "/static/emptydatabase.json"
+        session['filename_json'] = "emptydatabase.json"  
+    
+    return render_template('example.html', filenamebpmn = session.get('filename_bpmn'),done=session.get('done'), example = session.get('example'))
+
 @app.route('/uploads/<name>')
 def download_file(name):
     return send_from_directory(app.config["UPLOAD_FOLDER"], name)
@@ -329,4 +373,4 @@ def reloadbpmn():
     return redirect(url_for('bpmn'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block style %}
+<title>Home</title>
+{% endblock style %} {% block content %}
+
+<div class="container-fluid toppadding">
+
+    {% if negative_message %}
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        {{ negative_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %} {% if positive_message %}
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        {{ positive_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="close"></button>
+    </div>
+    {% endif %}
+
+    <form method="post" id="building">
+        <input type="hidden" name="building" value="true">
+    </form>
+    <form method="post" id="parcel">
+        <input type="hidden" name="parcel" value="true">
+    </form>
+    <form method="post" id="performcheck">
+        <input type="hidden" name="processbutton" value="true">
+    </form>
+    <div style="text-align: center">
+        <button style="width: 12vw" form="building"
+            class="btn{% if example == 'building' %} btn-dark {% else %} btn-outline-dark {% endif %}mb-3 mr-2"
+            type="submit">Building scale BPMN</button>
+        <button style="width: 12vw" form="parcel"
+            class="btn{% if example == 'parcel' %} btn-dark {% else %} btn-outline-dark {% endif %}mb-3"
+            type="submit">Parcel scale BPMN</button>
+        <br>
+        <a style="width: 12vw" class="btn btn-dark mb-3 mr-2{% if not filenamebpmn %} disabled"
+            aria-disabled="true {% endif %}" role="button" href="{{url_for('input')}}">Fill in parameters</a>
+        <button style="width: 12vw" form="performcheck" type="submit" class="btn btn-dark mb-3" {% if not filenamebpmn
+            %} disabled {% endif %}>Check compliance</button>
+    </div>
+
+    {% if example %}
+
+    <div id="diagram-container">
+        <div id="diagram"></div>
+    </div>
+
+    <!-- modeler distro -->
+    <script src="https://unpkg.com/bpmn-js@13.2.0/dist/bpmn-modeler.development.js"></script>
+
+    <!-- jquery (required for example only) -->
+    <script src="https://unpkg.com/jquery@3.3.1/dist/jquery.js"></script>
+
+    <!-- app -->
+    <script>
+        var viewer = new BpmnJS({
+            container: "#diagram",
+        });
+
+        async function showDiagram(diagramXML) {
+            await viewer.importXML(diagramXML);
+
+            var overlays = viewer.get("overlays"),
+                canvas = viewer.get("canvas"),
+                elementRegistry = viewer.get("elementRegistry"),
+                modeling = viewer.get("modeling");
+        }
+
+        // load + show diagram
+        $.get("{{ url_for('static', filename=filenamebpmn) }}", showDiagram);
+    </script>
+
+</div>
+
+{% endif %} {% endblock content %}
