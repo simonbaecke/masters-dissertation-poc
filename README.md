@@ -5,11 +5,11 @@ This tool is a proof of concept application of the master's dissertation "Data-b
 To run the tool, simply download the zip folder and extract the content or clone the repository in a terminal.
 ```
  git clone https://github.com/simonbaecke/masters-dissertation-poc.git
- ```
- When this is done the app.py file has to be executed, which can also be done in the terminal.
+```
+When this is done the app.py file has to be executed, which can also be done in the terminal. Note that all dependencies have to be installed for correct functioning of the tool, these are listed in the dependencies.txt file.
 ```
 python app.py
- ```
+```
 
  To make use of the microservices in the example of the rainwater regulation, visit https://github.com/simonbaecke/masters-dissertation/blob/main/microservices.
 ## Use
