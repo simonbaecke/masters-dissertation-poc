@@ -90,16 +90,17 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
                     if next.name == "receiveTask":
                         dataobject = data.find('dataObjectReference',attrs = {'id' : next.dataInputAssociation.sourceRef.string})
                         dataobjectid = dataobject["name"]
-                        print(dataobjectid)
 
                         for call in allcallactivities:
                             if call.find('targetRef',string=next.dataInputAssociation.sourceRef.string):
                                 ms = call
                                 msurl = ms["name"]
-                                print(msurl)
 
                         if dataobjectid[-1:] == "M":
                             endparameters.append(dataobjectid)
+                            usedparameters.append(dataobjectid)
+                            shapecolorid.append(dataobject["id"])
+                            linecolorid.append(next.dataInputAssociation["id"])
 
                         elif ms:
                             parameterms = data.find(attrs= {'id' : ms.dataInputAssociation.sourceRef.string})
@@ -144,6 +145,8 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
                                 except:
                                         local_dict[dataobjectid] = databasevalue
                                         usedparameters.append(dataobjectid)
+                                        shapecolorid.append(dataobject["id"])
+                                        linecolorid.append(next.dataInputAssociation["id"])
                             else:
                                 negative_message =f'{dataobjectid} is absent from the database'
                                 errorloop = False
@@ -228,6 +231,7 @@ def bpmnprocessor(bpmnfilepath, jsonfilepath):
     
     if not negative_message:
         positive_message = "BPMN processed succesfully"
+
     return usedparameters, endparameters, positive_message, negative_message
 
 
@@ -289,7 +293,6 @@ def input():
 
     if request.method == 'POST':
         if 'addjson' in request.files:
-            print('hallo')
             addjson = request.files.get('addjson')
             if not allowed_file(addjson.filename,"json"):
                 negative_message="File type not supported"
@@ -303,7 +306,8 @@ def input():
         else:
             editeddata = request.form
             reprocess_json(editeddata,data,file_path_json)
-        return render_template('input.html',filepathjson=file_path_json,done=session.get('done'), data=data, zipt=zipt)
+        positive_message="Values succesfully added"
+        return render_template('input.html',filepathjson=file_path_json,done=session.get('done'), data=data, zipt=zipt,positive_message=positive_message)
 
     return render_template('input.html',filepathjson=file_path_json,done=session.get('done'), data=data, zipt=zipt)
 
@@ -373,4 +377,4 @@ def reloadbpmn():
     return redirect(url_for('bpmn'))
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

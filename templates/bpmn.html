@@ -15,8 +15,8 @@
       database</a>
   </div>
 
-  {% if endparameter_data %}
-  <div style="text-align: center">
+  {% if endparameters %}
+
     <form method="post" action="/bpmn" id="addparameterfill">
       <div class="row">
         {% for item in endparameters %}
@@ -87,6 +87,5 @@
     {% endfor %}
 
     {% endif %}
-  </div>
 
   {% endblock content %}
